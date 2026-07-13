@@ -14,7 +14,8 @@ def extract_mod_name(filename):
     2. 找到第一个数字的位置
     3. 往前找离它最近的 '-'
     4. 取 '-' 之前的内容
-    5. 删除内容中所有的 '-'
+    5. 去掉末尾的 '-forge'、'-neoforge'、'-neo'（不区分大小写）
+    6. 删除内容中所有的 '-'
     """
     name = filename
     if name.lower().endswith('.jar'):
@@ -26,18 +27,24 @@ def extract_mod_name(filename):
         # 没有数字，尝试取第一个 '-' 之前的部分
         dash_pos = name.find('-')
         if dash_pos == -1:
-            return name.replace('-', '')  # 整个文件名（无扩展名）去掉 '-'
-        return name[:dash_pos].replace('-', '')
-    
-    first_digit_pos = first_digit_match.start()
-    
-    # 从第一个数字往前找最近的 '-'
-    dash_pos = name.rfind('-', 0, first_digit_pos)
-    if dash_pos == -1:
-        # 数字前没有 '-'，取数字前的全部
-        result = name[:first_digit_pos]
+            result = name
+        else:
+            result = name[:dash_pos]
     else:
-        result = name[:dash_pos]
+        first_digit_pos = first_digit_match.start()
+        # 从第一个数字往前找最近的 '-'
+        dash_pos = name.rfind('-', 0, first_digit_pos)
+        if dash_pos == -1:
+            result = name[:first_digit_pos]
+        else:
+            result = name[:dash_pos]
+    
+    # 去掉末尾的 -forge、-neoforge、-neo（不区分大小写）
+    suffixes = ['-forge', '-neoforge', '-neo']
+    for suffix in suffixes:
+        if result.lower().endswith(suffix.lower()):
+            result = result[:-len(suffix)]
+            break  # 只去掉一个匹配的后缀
     
     # 删除所有 '-'
     return result.replace('-', '')
