@@ -1,0 +1,28 @@
+name: Build Removed EXE
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+    
+    - name: 安装 Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: 安装 PyInstaller
+      run: pip install pyinstaller
+    
+    - name: 打包成 EXE
+      run: pyinstaller --onefile --console --name MC_Mod_Removed mod_check_removed.py
+    
+    - name: 上传 EXE
+      uses: actions/upload-artifact@v4
+      with:
+        name: MC_Mod_Removed
+        path: dist/MC_Mod_Removed.exe
